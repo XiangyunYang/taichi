@@ -14,7 +14,7 @@ from taichi.lang.ast import (ASTTransformerContext, KernelSimplicityASTChecker,
 from taichi.lang.enums import Layout
 from taichi.lang.exception import TaichiCompilationError, TaichiSyntaxError
 from taichi.lang.expr import Expr
-from taichi.lang.matrix import MatrixType
+from taichi.lang.matrix import Matrix, MatrixType
 from taichi.lang.shell import _shell_pop_print, oinspect
 from taichi.lang.util import to_taichi_type
 from taichi.linalg.sparse_matrix import sparse_matrix_builder
@@ -618,9 +618,11 @@ class Kernel:
                 elif id(ret_dt) in primitive_types.real_type_ids:
                     ret = t_kernel.get_ret_float(0)
                 elif id(ret_dt.dtype) in primitive_types.integer_type_ids:
-                    ret = t_kernel.get_ret_matrix_int(0)
+                    it = iter(t_kernel.get_ret_matrix_int(0))
+                    ret = Matrix([[next(it) for _ in range(ret_dt.n)] for _ in range(ret_dt.m)])
                 else:
-                    ret = t_kernel.get_ret_matrix_float(0)
+                    it = iter(t_kernel.get_ret_matrix_float(0))
+                    ret = Matrix([[next(it) for _ in range(ret_dt.n)]for _ in range(ret_dt.m)])
 
             if callbacks:
                 for c in callbacks:
