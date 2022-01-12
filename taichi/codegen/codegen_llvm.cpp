@@ -1077,7 +1077,8 @@ void CodeGenLLVM::visit(ReturnStmt *stmt) {
       })) {
     TI_NOT_IMPLEMENTED
   } else {
-
+    TI_ASSERT( stmt ->values.size() <= 30 && "ERROR: Return list's size must less than or equal to 30 currently!");
+    int idx = 0;
     for (auto &value:stmt->values){
       auto intermediate_bits = 0;
       if (auto cit = value->ret_type->cast<CustomIntType>()) {
@@ -1100,7 +1101,7 @@ void CodeGenLLVM::visit(ReturnStmt *stmt) {
       auto extended = builder->CreateZExt(
           builder->CreateBitCast(llvm_val[value], intermediate_type),
           dest_ty);
-      create_call("LLVMRuntime_store_result", {get_runtime(), extended});
+      create_call("LLVMRuntime_store_result", {get_runtime(), extended ,llvm::ConstantInt::get(*llvm_context,llvm::APInt(32,idx++))});
       // Need add
     }
   }
