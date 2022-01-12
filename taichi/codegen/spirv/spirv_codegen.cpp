@@ -528,7 +528,14 @@ class TaskCodegen : public IRVisitor {
     spirv::Value buffer_val = ir_->struct_array_access(
         ir_->i32_type(),
         get_buffer_value(BufferType::Context, PrimitiveType::i32), idx_val);
-    spirv::Value val = ir_->query_value(stmt->value->raw_name());
+    if (stmt->values.size() == 1){
+
+      spirv::Value val = ir_->query_value(stmt->values.back()->raw_name());
+    }
+    else {
+     TI_NOT_IMPLEMENTED;
+    }
+    // Need change, this is wrong
     ir_->store_variable(buffer_val,
                         ir_->make_value(spv::OpBitcast, ir_->i32_type(), val));
   }

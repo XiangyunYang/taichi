@@ -15,6 +15,13 @@
 #include "taichi/ir/type_factory.h"
 #include "taichi/util/short_name.h"
 
+template <class... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
 namespace taichi {
 namespace lang {
 

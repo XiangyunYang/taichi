@@ -1071,31 +1071,38 @@ void CodeGenLLVM::visit(ArgLoadStmt *stmt) {
 }
 
 void CodeGenLLVM::visit(ReturnStmt *stmt) {
-  if (stmt->ret_type.is_pointer()) {
+  auto types = stmt->element_types();
+  if (std::any_of(types.begin(),types.end(),[](const DataType &t){
+        return t.is_pointer();
+      })) {
     TI_NOT_IMPLEMENTED
   } else {
-    auto intermediate_bits = 0;
-    if (auto cit = stmt->value->ret_type->cast<CustomIntType>()) {
-      intermediate_bits = data_type_bits(cit->get_compute_type());
-    } else {
-      intermediate_bits =
-          tlctx->get_data_type(stmt->value->ret_type)->getPrimitiveSizeInBits();
+
+    for (auto &value:stmt->values){
+      auto intermediate_bits = 0;
+      if (auto cit = value->ret_type->cast<CustomIntType>()) {
+        intermediate_bits = data_type_bits(cit->get_compute_type());
+      } else {
+        intermediate_bits =
+            tlctx->get_data_type(value->ret_type)->getPrimitiveSizeInBits();
+      }
+      llvm::Type *dest_ty = tlctx->get_data_type<int64>();
+      llvm::Type *intermediate_type = nullptr;
+      if (llvm_val[value]->getType() ==
+          llvm::Type::getHalfTy(*llvm_context)) {
+        llvm_val[value] = builder->CreateFPExt(
+            llvm_val[value], tlctx->get_data_type<float>());
+        intermediate_type = tlctx->get_data_type<int32>();
+      } else {
+        intermediate_type =
+            llvm::Type::getIntNTy(*llvm_context, intermediate_bits);
+      }
+      auto extended = builder->CreateZExt(
+          builder->CreateBitCast(llvm_val[value], intermediate_type),
+          dest_ty);
+      create_call("LLVMRuntime_store_result", {get_runtime(), extended});
+      // Need add
     }
-    llvm::Type *dest_ty = tlctx->get_data_type<int64>();
-    llvm::Type *intermediate_type = nullptr;
-    if (llvm_val[stmt->value]->getType() ==
-        llvm::Type::getHalfTy(*llvm_context)) {
-      llvm_val[stmt->value] = builder->CreateFPExt(
-          llvm_val[stmt->value], tlctx->get_data_type<float>());
-      intermediate_type = tlctx->get_data_type<int32>();
-    } else {
-      intermediate_type =
-          llvm::Type::getIntNTy(*llvm_context, intermediate_bits);
-    }
-    auto extended = builder->CreateZExt(
-        builder->CreateBitCast(llvm_val[stmt->value], intermediate_type),
-        dest_ty);
-    create_call("LLVMRuntime_store_result", {get_runtime(), extended});
   }
 }
 

@@ -7,6 +7,8 @@
 #include "taichi/ir/frontend_ir.h"
 #include "taichi/util/str.h"
 
+#include <variant>
+
 TLANG_NAMESPACE_BEGIN
 
 namespace {
@@ -407,13 +409,13 @@ class IRPrinter : public IRVisitor {
   }
 
   void visit(FrontendReturnStmt *stmt) override {
-    print("{}{} : return {}", stmt->type_hint(), stmt->name(),
-          stmt->value.serialize());
+    print("{}{} : return [{}]", stmt->type_hint(), stmt->name(),
+          stmt->values.serialize());
   }
 
   void visit(ReturnStmt *stmt) override {
     print("{}{} : return {}", stmt->type_hint(), stmt->name(),
-          stmt->value->name());
+          stmt->values_raw_names());
   }
 
   void visit(LocalLoadStmt *stmt) override {

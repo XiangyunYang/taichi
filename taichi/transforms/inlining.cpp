@@ -50,8 +50,14 @@ class Inliner : public BasicStmtVisitor {
           /*filter=*/[&](Stmt *s) { return s->is<ReturnStmt>(); },
           /*generator=*/
           [&](Stmt *s) {
+            VecStatement stmts;
+            for (auto &x: s->as<ReturnStmt>()->values){
+
+              stmts.push_back<LocalStoreStmt>(stmts.push_back<PtrOffsetStmt>())
+            }
             return Stmt::make<LocalStoreStmt>(return_address,
-                                              s->as<ReturnStmt>()->value);
+                                              s->as<ReturnStmt>()->values[0]);
+            //NEED change
           });
       modifier_.insert_before(stmt,
                               std::move(inlined_ir->as<Block>()->statements));
