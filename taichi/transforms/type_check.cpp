@@ -434,19 +434,11 @@ class TypeCheck : public IRVisitor {
     // TODO: Support stmt->ret_id?
     TI_ASSERT(stmt->get_kernel()->rets.size() == 1);
     if (auto ret_tensor=stmt->get_kernel()->rets[0].dt->cast<TensorType>()){
-      TI_ASSERT(ret_tensor->get_shape()==stmt->)
-      for (auto &x:stmt->element_types()){
-        ret_tensor->get_num_elements()
-      }
-      TI_ASSERT(stmt->values.size() == 1);
-      TI_ASSERT(stmt->values[0].)
+      TI_ASSERT(ret_tensor->get_num_elements() == stmt->values.size());
     }
     else {
-
-    }
-    TI_ASSERT(stmt->values.size() == stmt->get_kernel()->rets[0)
-    for (auto &x:stmt->element_types()){
-      TI_ASSERT(x->ret_type->vector_width() == 1);
+      TI_ASSERT(stmt->values.size() == 1);
+      TI_ASSERT(stmt->values[0]->ret_type->vector_width() == 1);
     }
   }
 
