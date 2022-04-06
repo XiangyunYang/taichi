@@ -38,7 +38,7 @@ new.
 ## Basic concepts
 
 Before detailing syntax and semantics in the next few chapters, many basic but
-important concepts and general evaluation principles specific to Taichi are
+important concepts and general e123123valuation principles specific to Taichi are
 listed here.
 
 ### Values and types
